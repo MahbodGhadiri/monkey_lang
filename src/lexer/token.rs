@@ -32,16 +32,24 @@ pub struct Token {
     t_type: TokenType,
     file: String,
     line: u32,
-    char: u32,
+    start_char: u32,
+    finish_char: u32,
 }
 
 impl Token {
-    pub fn new(t_type: TokenType, file: String, line: u32, char: u32) -> Token {
+    pub fn new(
+        t_type: TokenType,
+        file: String,
+        line: u32,
+        start_char: u32,
+        finish_char: u32,
+    ) -> Token {
         let token = Token {
             t_type,
             file,
             line,
-            char,
+            start_char,
+            finish_char,
         };
         return token;
     }

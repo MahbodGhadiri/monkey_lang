@@ -2,6 +2,8 @@ use std::fs::File;
 use std::io::prelude::*;
 use std::io::BufReader;
 
+use self::token::Token;
+
 pub mod token;
 
 pub struct Lexer {
@@ -9,7 +11,13 @@ pub struct Lexer {
     current_line: String,
     current_line_number: u32,
     current_char: u32,
+    start_char: u32,
     tokens: Vec<token::Token>,
+}
+
+enum Line {
+    Content(String),
+    EOF,
 }
 
 impl Lexer {
@@ -20,6 +28,7 @@ impl Lexer {
             input,
             current_line_number: 1,
             current_char: 1,
+            start_char: 1,
             current_line: line,
             tokens: Vec::new(),
         }
@@ -29,17 +38,38 @@ impl Lexer {
         loop {
             self.process_line();
             let line = self.get_next_line();
-            self.current_line = line;
             self.current_line_number += 1;
+            match line {
+                Line::Content(l) => self.current_line = l,
+                Line::EOF => {
+                    let token = Token::new(
+                        token::TokenType::EOF,
+                        "file".to_string(),
+                        self.current_line_number,
+                        1,
+                        1,
+                    );
+                    self.tokens.push(token);
+                    break;
+                }
+            }
         }
     }
 
-    fn get_next_line(&mut self) -> String {
+    pub fn get_tokens(&self) -> &Vec<Token> {
+        return &self.tokens;
+    }
+
+    fn get_next_line(&mut self) -> Line {
         let mut line = String::new();
-        self.input
+        let len = self
+            .input
             .read_line(&mut line)
             .expect("cound not read line");
-        return line;
+        if len == 0 {
+            return Line::EOF;
+        }
+        return Line::Content(line);
     }
 
     fn process_line(&mut self) {
@@ -53,11 +83,28 @@ impl Lexer {
                 self.current_char += 1;
                 continue;
             }
+            self.start_char = self.current_char;
             let token = self.next_token(char);
             self.current_char += 1;
-            println!("{:?}", token);
             self.tokens.push(token);
         }
+    }
+
+    fn is_legal_symbol(c: char) -> bool {
+        let is_legal = match c {
+            '=' => true,
+            '+' => true,
+            ';' => true,
+            '(' => true,
+            ')' => true,
+            ',' => true,
+            '{' => true,
+            '}' => true,
+            '\'' => true,
+            '"' => true,
+            _ => false,
+        };
+        return is_legal;
     }
 
     fn read_identifier(&mut self, c: char) -> token::TokenType {
@@ -70,8 +117,10 @@ impl Lexer {
             if char.is_alphanumeric() || char == '_' {
                 s += &char.to_string();
             } else if char.is_whitespace() {
+                self.current_char -= 1;
                 break;
-            } else if char == ';' {
+            } else if Lexer::is_legal_symbol(char) {
+                self.current_char -= 1;
                 break;
             } else {
                 s += &char.to_string();
@@ -97,8 +146,10 @@ impl Lexer {
             if char.is_numeric() {
                 s += &char.to_string();
             } else if char.is_whitespace() {
+                self.current_char -= 1;
                 break;
-            } else if char == ';' {
+            } else if Lexer::is_legal_symbol(char) {
+                self.current_char -= 1;
                 break;
             } else {
                 s += &char.to_string();
@@ -138,6 +189,7 @@ impl Lexer {
             token_type,
             "file".to_string(),
             self.current_line_number,
+            self.start_char,
             self.current_char,
         );
         return token;
