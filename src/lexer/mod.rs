@@ -138,6 +138,11 @@ impl Lexer {
         match s.as_str() {
             "let" => token::TokenType::Let,
             "fn" => token::TokenType::Function,
+            "return" => token::TokenType::Return,
+            "if" => token::TokenType::If,
+            "else" => token::TokenType::Else,
+            "true" => token::TokenType::True,
+            "false" => token::TokenType::False,
             &_ => token::TokenType::Identifier(s),
         }
     }
