@@ -174,10 +174,24 @@ impl Lexer {
 
     fn next_token(&mut self, c: char) -> token::Token {
         let token_type = match c {
-            '=' => token::TokenType::Assign,
+            '=' => {
+                if self.peak_ahead() == '=' {
+                    self.current_char += 1;
+                    token::TokenType::EQ
+                } else {
+                    token::TokenType::Assign
+                }
+            }
             '+' => token::TokenType::Plus,
             '-' => token::TokenType::Minus,
-            '!' => token::TokenType::Bang,
+            '!' => {
+                if self.peak_ahead() == '=' {
+                    self.current_char += 1;
+                    token::TokenType::NotEQ
+                } else {
+                    token::TokenType::Bang
+                }
+            }
             '*' => token::TokenType::Asterisk,
             '/' => token::TokenType::Slash,
             '<' => token::TokenType::LT,
@@ -211,5 +225,17 @@ impl Lexer {
             self.current_char,
         );
         return token;
+    }
+
+    // returns next character without moving current_char forward
+    fn peak_ahead(&self) -> char {
+        let line = self.current_line.clone();
+        for (i, char) in line.chars().enumerate() {
+            if (i as u32) < self.current_char {
+                continue;
+            }
+            return char;
+        }
+        return ' ';
     }
 }

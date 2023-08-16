@@ -17,3 +17,6 @@ fn is_positive(n){
         return false;
     }
 }
+
+fn is_equal(a,b) { return a == b; }
+fn are_not_equal(a,b) { return a != b; }
