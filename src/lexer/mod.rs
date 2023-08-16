@@ -94,14 +94,20 @@ impl Lexer {
         let is_legal = match c {
             '=' => true,
             '+' => true,
-            ';' => true,
-            '(' => true,
-            ')' => true,
+            '-' => true,
+            '!' => true,
+            '*' => true,
+            '/' => true,
+            '<' => true,
+            '>' => true,
             ',' => true,
-            '{' => true,
-            '}' => true,
+            ';' => true,
             '\'' => true,
             '"' => true,
+            '(' => true,
+            ')' => true,
+            '{' => true,
+            '}' => true,
             _ => false,
         };
         return is_legal;
@@ -165,14 +171,21 @@ impl Lexer {
         let token_type = match c {
             '=' => token::TokenType::Assign,
             '+' => token::TokenType::Plus,
-            ';' => token::TokenType::Semicolon,
-            '(' => token::TokenType::LParen,
-            ')' => token::TokenType::RParen,
+            '-' => token::TokenType::Minus,
+            '!' => token::TokenType::Bang,
+            '*' => token::TokenType::Asterisk,
+            '/' => token::TokenType::Slash,
+            '<' => token::TokenType::LT,
+            '>' => token::TokenType::GT,
             ',' => token::TokenType::Comma,
-            '{' => token::TokenType::LBrace,
-            '}' => token::TokenType::RBrace,
+            ';' => token::TokenType::Semicolon,
             '\'' => token::TokenType::Quate,
             '"' => token::TokenType::DoubleQuate,
+            '(' => token::TokenType::LParen,
+            ')' => token::TokenType::RParen,
+            '{' => token::TokenType::LBrace,
+            '}' => token::TokenType::RBrace,
+
             _ => {
                 if c.is_alphabetic() {
                     self.current_char += 1;
