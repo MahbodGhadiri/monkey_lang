@@ -1,67 +1,21 @@
 use std::fs::File;
 use std::io::prelude::*;
 use std::io::BufReader;
-#[derive(Debug)]
-enum TokenType {
-    EOF,
-    Illegal(String),
 
-    // identifiers + literals
-    Int(i64),
-    Identifier(String),
-
-    // Operators
-    Assign,
-    Plus,
-
-    // Delimeters
-    Comma,
-    Semicolon,
-    Quate,
-    DoubleQuate,
-
-    LParen, // (
-    RParen, // )
-    LBrace, // {
-    RBrace, // }
-
-    // Keywords
-    Function, // fn
-    Let,      // let
-}
-
-#[derive(Debug)]
-struct Token {
-    t_type: TokenType,
-    file: String,
-    line: u32,
-    char: u32,
-}
-
-impl Token {
-    fn new(t_type: TokenType, file: String, line: u32, char: u32) -> Token {
-        let token = Token {
-            t_type,
-            file,
-            line,
-            char,
-        };
-        return token;
-    }
-}
+pub mod token;
 
 pub struct Lexer {
     input: BufReader<File>,
     current_line: String,
     current_line_number: u32,
     current_char: u32,
-    tokens: Vec<Token>,
+    tokens: Vec<token::Token>,
 }
 
 impl Lexer {
     pub fn new(mut input: BufReader<File>) -> Lexer {
         let mut line = String::new();
-        let len = input.read_line(&mut line);
+        let _len = input.read_line(&mut line);
         Lexer {
             input,
             current_line_number: 1,
@@ -106,7 +60,7 @@ impl Lexer {
         }
     }
 
-    fn read_identifier(&mut self, c: char) -> TokenType {
+    fn read_identifier(&mut self, c: char) -> token::TokenType {
         let line = &self.current_line;
         let mut s = c.to_string();
         for (i, char) in line.chars().enumerate() {
@@ -121,19 +75,19 @@ impl Lexer {
                 break;
             } else {
                 s += &char.to_string();
-                return TokenType::Illegal(s);
+                return token::TokenType::Illegal(s);
             }
             self.current_char += 1;
         }
 
         match s.as_str() {
-            "let" => TokenType::Let,
-            "fn" => TokenType::Function,
-            &_ => TokenType::Identifier(s),
+            "let" => token::TokenType::Let,
+            "fn" => token::TokenType::Function,
+            &_ => token::TokenType::Identifier(s),
         }
     }
 
-    fn read_integer(&mut self, c: char) -> TokenType {
+    fn read_integer(&mut self, c: char) -> token::TokenType {
         let line = &self.current_line;
         let mut s = c.to_string();
         for (i, char) in line.chars().enumerate() {
@@ -148,26 +102,26 @@ impl Lexer {
                 break;
             } else {
                 s += &char.to_string();
-                return TokenType::Illegal(s);
+                return token::TokenType::Illegal(s);
             }
             self.current_char += 1;
         }
         let integer = s.parse::<i64>().unwrap();
-        return TokenType::Int(integer);
+        return token::TokenType::Int(integer);
     }
 
-    fn next_token(&mut self, c: char) -> Token {
+    fn next_token(&mut self, c: char) -> token::Token {
         let token_type = match c {
-            '=' => TokenType::Assign,
-            '+' => TokenType::Plus,
-            ';' => TokenType::Semicolon,
-            '(' => TokenType::LParen,
-            ')' => TokenType::RParen,
-            ',' => TokenType::Comma,
-            '{' => TokenType::LBrace,
-            '}' => TokenType::RBrace,
-            '\'' => TokenType::Quate,
-            '"' => TokenType::DoubleQuate,
+            '=' => token::TokenType::Assign,
+            '+' => token::TokenType::Plus,
+            ';' => token::TokenType::Semicolon,
+            '(' => token::TokenType::LParen,
+            ')' => token::TokenType::RParen,
+            ',' => token::TokenType::Comma,
+            '{' => token::TokenType::LBrace,
+            '}' => token::TokenType::RBrace,
+            '\'' => token::TokenType::Quate,
+            '"' => token::TokenType::DoubleQuate,
             _ => {
                 if c.is_alphabetic() {
                     self.current_char += 1;
@@ -176,11 +130,11 @@ impl Lexer {
                     self.current_char += 1;
                     self.read_integer(c)
                 } else {
-                    TokenType::Illegal(c.to_string())
+                    token::TokenType::Illegal(c.to_string())
                 }
             }
         };
-        let token = Token::new(
+        let token = token::Token::new(
             token_type,
             "file".to_string(),
             self.current_line_number,
