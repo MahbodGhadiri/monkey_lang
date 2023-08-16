@@ -1,13 +1,8 @@
-use std::fs::File;
-use std::io::prelude::*;
-use std::io::BufReader;
-
 use self::token::Token;
 
 pub mod token;
 
 pub struct Lexer {
-    input: BufReader<File>,
     current_line: String,
     current_line_number: u32,
     current_char: u32,
@@ -15,18 +10,16 @@ pub struct Lexer {
     tokens: Vec<token::Token>,
 }
 
-enum Line {
+pub enum Line {
     Content(String),
     EOF,
 }
 
 impl Lexer {
-    pub fn new(mut input: BufReader<File>) -> Lexer {
+    pub fn new() -> Lexer {
         let mut line = String::new();
-        let _len = input.read_line(&mut line);
         Lexer {
-            input,
-            current_line_number: 1,
+            current_line_number: 0,
             current_char: 1,
             start_char: 1,
             current_line: line,
@@ -34,48 +27,30 @@ impl Lexer {
         }
     }
 
-    pub fn start(&mut self) {
-        loop {
-            self.process_line();
-            let line = self.get_next_line();
-            self.current_line_number += 1;
-            match line {
-                Line::Content(l) => self.current_line = l,
-                Line::EOF => {
-                    let token = Token::new(
-                        token::TokenType::EOF,
-                        "file".to_string(),
-                        self.current_line_number,
-                        1,
-                        1,
-                    );
-                    self.tokens.push(token);
-                    break;
-                }
-            }
-        }
-    }
-
     pub fn get_tokens(&self) -> &Vec<Token> {
         return &self.tokens;
     }
 
-    fn get_next_line(&mut self) -> Line {
-        let mut line = String::new();
-        let len = self
-            .input
-            .read_line(&mut line)
-            .expect("cound not read line");
-        if len == 0 {
-            return Line::EOF;
-        }
-        return Line::Content(line);
-    }
-
-    fn process_line(&mut self) {
-        let line = &self.current_line.clone(); //TODO better than clone
+    pub fn process_line(&mut self, line: Line) {
+        self.current_line_number += 1;
         self.current_char = 1;
-        for (i, char) in line.chars().enumerate() {
+        match line {
+            Line::Content(l) => {
+                self.current_line = l;
+            }
+            Line::EOF => {
+                let token = token::Token::new(
+                    token::TokenType::EOF,
+                    "file".to_string(),
+                    self.current_line_number,
+                    1,
+                    1,
+                );
+                self.tokens.push(token);
+                return;
+            }
+        }
+        for (i, char) in self.current_line.clone().chars().enumerate() {
             if (i as u32) < self.current_char - 1 {
                 continue;
             }
