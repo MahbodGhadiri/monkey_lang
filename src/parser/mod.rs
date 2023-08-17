@@ -34,24 +34,24 @@ impl Parser {
 
     pub fn parse_program(&mut self) {
         //for test
-        let statment = self.parse_statment();
-        println!("statment");
-        println!("{:?}", statment);
+        let statement = self.parse_statement();
+        println!("statement");
+        println!("{:?}", statement);
     }
 
-    fn parse_statment(&mut self) -> ast::Statement {
-        let statment = match self.current_token.get_type() {
-            lexer::token::TokenType::Let => self.parse_let_statment(),
-            _ => panic!("currently only support let statments"),
+    fn parse_statement(&mut self) -> ast::Statement {
+        let statement = match self.current_token.get_type() {
+            lexer::token::TokenType::Let => self.parse_let_statement(),
+            _ => panic!("currently only support let statements"),
         };
 
-        match statment {
+        match statement {
             Some(s) => s,
             None => panic!("failed to parse"),
         }
     }
 
-    fn parse_let_statment(&mut self) -> Option<ast::Statement> {
+    fn parse_let_statement(&mut self) -> Option<ast::Statement> {
         let keyword = self.next_token();
         let node = ast::Node::new(keyword);
 
@@ -66,8 +66,8 @@ impl Parser {
             self.next_token();
         }
 
-        let let_statment = ast::LetStatment::new(node, name, Expression::Int); //todo add expression(this is placeholder)
-        Option::Some(ast::Statement::LetStatment(let_statment))
+        let let_statement = ast::LetStatement::new(node, name, Expression::Int); //todo add expression(this is placeholder)
+        Option::Some(ast::Statement::LetStatement(let_statement))
     }
 
     fn expect_current(&self, t_type: token::TokenType) -> bool {

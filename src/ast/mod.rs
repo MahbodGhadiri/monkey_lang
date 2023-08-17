@@ -17,9 +17,9 @@ impl Node {
 
 #[derive(Debug)]
 pub enum Statement {
-    LetStatment(LetStatment),
-    IfStatment,
-    ReturnStatment,
+    LetStatement(LetStatement),
+    IfStatement,
+    ReturnStatement,
 }
 
 #[derive(Debug)]
@@ -41,14 +41,14 @@ impl Program {
 }
 
 #[derive(Debug)]
-pub struct LetStatment {
+pub struct LetStatement {
     node: Node,
     name: token::Token,
     value: Expression,
 }
 
-impl LetStatment {
-    pub fn new(node: Node, name: token::Token, value: Expression) -> LetStatment {
-        LetStatment { node, name, value }
+impl LetStatement {
+    pub fn new(node: Node, name: token::Token, value: Expression) -> LetStatement {
+        LetStatement { node, name, value }
     }
 }
