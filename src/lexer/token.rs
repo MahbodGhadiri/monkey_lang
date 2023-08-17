@@ -66,4 +66,8 @@ impl Token {
         };
         return token;
     }
+
+    pub fn get_type(&self) -> &TokenType {
+        &self.t_type
+    }
 }

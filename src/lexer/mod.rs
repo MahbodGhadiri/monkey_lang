@@ -7,7 +7,6 @@ pub struct Lexer {
     current_line_number: u32,
     current_char: u32,
     start_char: u32,
-    tokens: Vec<token::Token>,
 }
 
 pub enum Line {
@@ -16,41 +15,25 @@ pub enum Line {
 }
 
 impl Lexer {
-    pub fn new() -> Lexer {
-        let mut line = String::new();
+    pub fn new(line: String) -> Lexer {
         Lexer {
-            current_line_number: 0,
+            current_line_number: 1,
             current_char: 1,
             start_char: 1,
             current_line: line,
-            tokens: Vec::new(),
         }
     }
 
-    pub fn get_tokens(&self) -> &Vec<Token> {
-        return &self.tokens;
-    }
-
-    pub fn process_line(&mut self, line: Line) {
+    pub fn new_line(&mut self, line: String) {
         self.current_line_number += 1;
         self.current_char = 1;
-        match line {
-            Line::Content(l) => {
-                self.current_line = l;
-            }
-            Line::EOF => {
-                let token = token::Token::new(
-                    token::TokenType::EOF,
-                    "file".to_string(),
-                    self.current_line_number,
-                    1,
-                    1,
-                );
-                self.tokens.push(token);
-                return;
-            }
-        }
-        for (i, char) in self.current_line.clone().chars().enumerate() {
+        self.current_line = line;
+    }
+
+    pub fn get_next_token(&mut self) -> Option<Token> {
+        let line = &self.current_line;
+        let mut token: Option<Token> = Option::None;
+        for (i, char) in line.chars().enumerate() {
             if (i as u32) < self.current_char - 1 {
                 continue;
             }
@@ -59,10 +42,11 @@ impl Lexer {
                 continue;
             }
             self.start_char = self.current_char;
-            let token = self.next_token(char);
+            token = Option::Some(self.next_token(char));
             self.current_char += 1;
-            self.tokens.push(token);
+            break;
         }
+        token
     }
 
     fn is_legal_symbol(c: char) -> bool {
