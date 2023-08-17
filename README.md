@@ -13,10 +13,10 @@ This is just me learning new stuff.
 
 ## Why rust?
 
-At this point you are probably asking why am I writing Interpreter in Rust using a book that uses Go.
-The answer is how else can I write ⚡blazing fast⚡ and memory-safe code to implement a not so optimized and unsafe laguage?
+At this point you are probably asking why am I writing Interpreter in rust using a book that uses Go.
+The answer is how else can I write ⚡blazing fast⚡ and memory-safe code to implement a not so optimized and unsafe language?
 
-well ... not really. I am just fascinated by Rust and I was waiting for the best excuse to learn rust. and what excuse is better than learning about Rust and Interpreters/Compilers at the same time?
+well ... not really. I am just fascinated by rust and I was waiting for the best excuse to learn rust. and what excuse is better than learning about rust and Interpreters/Compilers at the same time?
 
 ## Features
 
@@ -44,7 +44,7 @@ punctuation(braces, brackets and etc.)
 
 | Feature        | State                                                 |
 | -------------- | ----------------------------------------------------- |
-| Lexer          | implemented basic features, more features to be added |
-| Parser         | Not developed yet                                     |
-| AST            | Not developed yet                                     |
+| Lexer          | Implemented basic features, more features to be added |
+| Parser         | Working on it                                         |
+| AST            | Working on it                                         |
 | Eval/Semantics | Not developed yet                                     |
