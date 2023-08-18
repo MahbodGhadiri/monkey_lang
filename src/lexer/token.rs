@@ -70,4 +70,8 @@ impl Token {
     pub fn get_type(&self) -> &TokenType {
         &self.t_type
     }
+
+    pub fn get_position(&self) -> String {
+        self.line.to_string() + ":" + &self.start_char.to_string()
+    }
 }
