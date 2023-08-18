@@ -1,30 +1,17 @@
 use super::lexer::token;
 
 #[derive(Debug)]
-pub struct Node {
-    token: token::Token,
-}
-
-impl Node {
-    pub fn new(token: token::Token) -> Node {
-        Node { token }
-    }
-
-    fn get_token(&self) -> &token::Token {
-        return &self.token;
-    }
-}
-
-#[derive(Debug)]
 pub enum Statement {
     LetStatement(LetStatement),
     IfStatement,
     ReturnStatement(ReturnStatement),
+    ExpressionStatement(ExpressionStatement),
 }
 
 #[derive(Debug)]
 pub enum Expression {
     Int,
+    Identifier(token::Token),
 }
 
 pub struct Program {
@@ -42,25 +29,36 @@ impl Program {
 
 #[derive(Debug)]
 pub struct LetStatement {
-    node: Node,
+    token: token::Token,
     name: token::Token,
     value: Expression,
 }
 
 #[derive(Debug)]
 pub struct ReturnStatement {
-    node: Node,
+    token: token::Token,
+    value: Expression,
+}
+
+#[derive(Debug)]
+pub struct ExpressionStatement {
     value: Expression,
 }
 
 impl LetStatement {
-    pub fn new(node: Node, name: token::Token, value: Expression) -> LetStatement {
-        LetStatement { node, name, value }
+    pub fn new(token: token::Token, name: token::Token, value: Expression) -> LetStatement {
+        LetStatement { token, name, value }
     }
 }
 
 impl ReturnStatement {
-    pub fn new(node: Node, value: Expression) -> ReturnStatement {
-        ReturnStatement { node, value }
+    pub fn new(token: token::Token, value: Expression) -> ReturnStatement {
+        ReturnStatement { token, value }
+    }
+}
+
+impl ExpressionStatement {
+    pub fn new(value: Expression) -> ExpressionStatement {
+        ExpressionStatement { value }
     }
 }
