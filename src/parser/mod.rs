@@ -80,7 +80,7 @@ impl Parser {
             self.next_token();
         }
 
-        let let_statement = ast::LetStatement::new(let_token, name, Expression::Int); //todo add expression(this is placeholder)
+        let let_statement = ast::LetStatement::new(let_token, name, Expression::Placeholder); //todo add expression(this is placeholder)
         self.parsed_partial = false;
         Option::Some(ast::Statement::LetStatement(let_statement))
     }
@@ -92,7 +92,7 @@ impl Parser {
         while !self.expect_peek(token::TokenType::Semicolon) {
             self.next_token();
         }
-        let return_statement = ast::ReturnStatement::new(return_token, Expression::Int);
+        let return_statement = ast::ReturnStatement::new(return_token, Expression::Placeholder);
         self.parsed_partial = false;
         Option::Some(ast::Statement::ReturnStatement(return_statement))
     }

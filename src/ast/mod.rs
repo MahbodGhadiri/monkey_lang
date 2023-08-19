@@ -10,8 +10,9 @@ pub enum Statement {
 
 #[derive(Debug)]
 pub enum Expression {
-    Int,
+    Int(token::Token),
     Identifier(token::Token),
+    Placeholder,
 }
 
 pub struct Program {

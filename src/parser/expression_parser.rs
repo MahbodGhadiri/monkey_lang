@@ -6,9 +6,13 @@ struct InfixExpressionParser {}
 
 struct PrefixExpressionParser {}
 
-impl InfixExpressionParser {
+impl PrefixExpressionParser {
     pub fn parse_identifier(token: token::Token) -> ast::Expression {
         ast::Expression::Identifier(token)
+    }
+
+    pub fn parse_int(token: token::Token) -> ast::Expression {
+        ast::Expression::Int(token)
     }
 }
 
@@ -23,6 +27,11 @@ pub enum Precedence {
 }
 
 pub fn parse_expression(precedence: Precedence, token: token::Token) -> ast::Expression {
-    let left_expression = InfixExpressionParser::parse_identifier(token);
+    let left_expression = match token.get_type() {
+        token::TokenType::Identifier(..) => PrefixExpressionParser::parse_identifier(token),
+        token::TokenType::Int(..) => PrefixExpressionParser::parse_int(token),
+        _ => panic!("not supported yet"),
+    };
+
     return left_expression;
 }
