@@ -12,11 +12,18 @@ pub enum Statement {
 pub enum Expression {
     Int(token::Token),
     Identifier(token::Token),
+    PrefixExpession(Box<PrefixExpession>),
     Placeholder,
 }
 
 pub struct Program {
     statements: Vec<Statement>,
+}
+
+#[derive(Debug)]
+pub struct PrefixExpession {
+    token: token::Token, //e.g. ! or -
+    right: Expression,
 }
 
 impl Program {
@@ -61,5 +68,11 @@ impl ReturnStatement {
 impl ExpressionStatement {
     pub fn new(value: Expression) -> ExpressionStatement {
         ExpressionStatement { value }
+    }
+}
+
+impl PrefixExpession {
+    pub fn new(token: token::Token, right: Expression) -> PrefixExpession {
+        PrefixExpession { token, right }
     }
 }

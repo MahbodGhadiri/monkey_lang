@@ -98,10 +98,10 @@ impl Parser {
     }
 
     fn parse_expression_statement(&mut self) -> Option<ast::Statement> {
-        let expression = expression_parser::parse_expression(
-            expression_parser::Precedence::Lowest,
-            self.next_token().unwrap(), // None handled in parse_statement function
-        );
+        let token = self.next_token().unwrap(); // None handled in parse_statement function
+        let mut expre_parser = expression_parser::ExpressionParser::new(self);
+        let expression =
+            expre_parser.parse_expression(expression_parser::Precedence::Lowest, token);
 
         if self.expect_peek(token::TokenType::Semicolon) {
             self.parsed_partial = false;
