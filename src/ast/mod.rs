@@ -12,7 +12,8 @@ pub enum Statement {
 pub enum Expression {
     Int(token::Token),
     Identifier(token::Token),
-    PrefixExpession(Box<PrefixExpession>),
+    PrefixExpression(Box<PrefixExpression>),
+    InfixExpression(Box<InfixExpression>),
     Placeholder,
 }
 
@@ -21,8 +22,15 @@ pub struct Program {
 }
 
 #[derive(Debug)]
-pub struct PrefixExpession {
+pub struct PrefixExpression {
     token: token::Token, //e.g. ! or -
+    right: Expression,
+}
+
+#[derive(Debug)]
+pub struct InfixExpression {
+    left: Expression,
+    token: token::Token,
     right: Expression,
 }
 
@@ -71,8 +79,14 @@ impl ExpressionStatement {
     }
 }
 
-impl PrefixExpession {
-    pub fn new(token: token::Token, right: Expression) -> PrefixExpession {
-        PrefixExpession { token, right }
+impl PrefixExpression {
+    pub fn new(token: token::Token, right: Expression) -> PrefixExpression {
+        PrefixExpression { token, right }
+    }
+}
+
+impl InfixExpression {
+    pub fn new(left: Expression, token: token::Token, right: Expression) -> InfixExpression {
+        InfixExpression { left, token, right }
     }
 }
