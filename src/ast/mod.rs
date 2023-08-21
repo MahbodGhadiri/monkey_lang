@@ -12,6 +12,7 @@ pub enum Statement {
 pub enum Expression {
     Int(token::Token),
     Identifier(token::Token),
+    Boolean(token::Token),
     PrefixExpression(Box<PrefixExpression>),
     InfixExpression(Box<InfixExpression>),
     Placeholder,

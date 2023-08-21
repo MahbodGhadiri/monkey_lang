@@ -41,6 +41,23 @@ impl PrefixExpressionParser {
         ast::Expression::Int(token)
     }
 
+    pub fn parse_bool(token: token::Token) -> ast::Expression {
+        ast::Expression::Boolean(token)
+    }
+
+    pub fn parse_grouped(expre_parser: &mut ExpressionParser) -> ast::Expression {
+        let token = match expre_parser.parser.next_token() {
+            Some(t) => t,
+            None => panic!("expected expression got nothing"),
+        };
+
+        let expression = expre_parser.parse_expression(Precedence::Lowest, token);
+        if !expre_parser.parser.expect_current(token::TokenType::RParen) {
+            panic!("expected");
+        };
+        expression
+    }
+
     pub fn parse_prefix_expression(
         expre_parser: &mut ExpressionParser,
         token: token::Token,
@@ -79,8 +96,11 @@ impl ExpressionParser<'_> {
         let mut left_expression = match token.get_type() {
             token::TokenType::Identifier(..) => PrefixExpressionParser::parse_identifier(token),
             token::TokenType::Int(..) => PrefixExpressionParser::parse_int(token),
+            token::TokenType::True => PrefixExpressionParser::parse_bool(token),
+            token::TokenType::False => PrefixExpressionParser::parse_bool(token),
             token::TokenType::Minus => PrefixExpressionParser::parse_prefix_expression(self, token),
             token::TokenType::Bang => PrefixExpressionParser::parse_prefix_expression(self, token),
+            token::TokenType::LParen => PrefixExpressionParser::parse_grouped(self),
             _ => panic!("does not supported token: {:?} yet", &token.get_type()),
         };
 
