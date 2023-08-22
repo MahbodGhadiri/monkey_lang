@@ -19,10 +19,6 @@ impl InfixExpressionParser {
         left: ast::Expression,
         operator: token::Token,
     ) -> ast::Expression {
-        println!(
-            "infix parcing current token: {:?}",
-            expre_parser.parser.current_token
-        );
         let operator_precedence = expre_parser.get_precedence(&operator);
         let operator = operator;
         let right_token = expre_parser.parser.next_token().unwrap(); //tODO handle none
@@ -56,6 +52,46 @@ impl PrefixExpressionParser {
             panic!("expected");
         };
         expression
+    }
+
+    pub fn parse_if(expre_parser: &mut ExpressionParser, token: token::Token) -> ast::Expression {
+        let if_token = token;
+
+        if !expre_parser.parser.expect_current(token::TokenType::LParen) {
+            panic!("expected ( but got {:?}", expre_parser.parser.current_token);
+        };
+        expre_parser.parser.next_token(); //drop lpar
+
+        let condition_token = match expre_parser.parser.next_token() {
+            Some(t) => t,
+            None => panic!(),
+        };
+        let condition = expre_parser.parse_expression(Precedence::Lowest, condition_token);
+
+        if !expre_parser.parser.expect_current(token::TokenType::RParen) {
+            panic!("expected ) but got {:?}", expre_parser.parser.current_token);
+        };
+
+        expre_parser.parser.next_token(); //drop rpar
+
+        if !expre_parser.parser.expect_current(token::TokenType::LBrace) {
+            panic!("expected ) but got {:?}", expre_parser.parser.current_token);
+        };
+
+        let consequence = expre_parser.parser.parse_block_statement();
+
+        let mut alternative: Option<ast::BlockStatment> = None;
+
+        if expre_parser.parser.expect_current(token::TokenType::Else) {
+            if !expre_parser.parser.expect_peek(token::TokenType::LBrace) {
+                panic!("expected ( but got {:?}", expre_parser.parser.peek_token);
+            };
+            expre_parser.parser.next_token(); //drop else
+            alternative = Some(expre_parser.parser.parse_block_statement());
+        } // if(y>z) {y} else {z};
+
+        let if_expression = ast::IfExpression::new(if_token, condition, consequence, alternative);
+        ast::Expression::IfExpression(Box::new(if_expression))
     }
 
     pub fn parse_prefix_expression(
@@ -101,12 +137,11 @@ impl ExpressionParser<'_> {
             token::TokenType::Minus => PrefixExpressionParser::parse_prefix_expression(self, token),
             token::TokenType::Bang => PrefixExpressionParser::parse_prefix_expression(self, token),
             token::TokenType::LParen => PrefixExpressionParser::parse_grouped(self),
+            token::TokenType::If => PrefixExpressionParser::parse_if(self, token),
             _ => panic!("does not supported token: {:?} yet", &token.get_type()),
         };
 
         let precedence = precedence as u16;
-        println!("current token: {:?}", self.parser.current_token);
-        println!("peek token: {:?}", self.parser.peek_token);
         while !self.parser.expect_current(token::TokenType::Semicolon)
             && (precedence < (self.assume_precedence(&self.parser.current_token) as u16))
         {

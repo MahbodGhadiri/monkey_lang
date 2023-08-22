@@ -3,7 +3,6 @@ use super::lexer::token;
 #[derive(Debug)]
 pub enum Statement {
     LetStatement(LetStatement),
-    IfStatement,
     ReturnStatement(ReturnStatement),
     ExpressionStatement(ExpressionStatement),
 }
@@ -15,6 +14,7 @@ pub enum Expression {
     Boolean(token::Token),
     PrefixExpression(Box<PrefixExpression>),
     InfixExpression(Box<InfixExpression>),
+    IfExpression(Box<IfExpression>),
     Placeholder,
 }
 
@@ -35,20 +35,19 @@ pub struct InfixExpression {
     right: Expression,
 }
 
-impl Program {
-    fn get_token(&self) -> Option<&Statement> {
-        if self.statements.len() > 0 {
-            return Option::Some(&self.statements[0]);
-        }
-        Option::None
-    }
-}
-
 #[derive(Debug)]
 pub struct LetStatement {
     token: token::Token,
     name: token::Token,
     value: Expression,
+}
+
+#[derive(Debug)]
+pub struct IfExpression {
+    token: token::Token,
+    condition: Expression,
+    consequence: BlockStatment,
+    alternative: Option<BlockStatment>,
 }
 
 #[derive(Debug)]
@@ -62,9 +61,40 @@ pub struct ExpressionStatement {
     value: Expression,
 }
 
+#[derive(Debug)]
+pub struct BlockStatment {
+    token: token::Token,
+    statements: Vec<Statement>,
+}
+
+impl Program {
+    fn get_token(&self) -> Option<&Statement> {
+        if self.statements.len() > 0 {
+            return Option::Some(&self.statements[0]);
+        }
+        Option::None
+    }
+}
+
 impl LetStatement {
     pub fn new(token: token::Token, name: token::Token, value: Expression) -> LetStatement {
         LetStatement { token, name, value }
+    }
+}
+
+impl IfExpression {
+    pub fn new(
+        token: token::Token,
+        condition: Expression,
+        consequence: BlockStatment,
+        alternative: Option<BlockStatment>,
+    ) -> IfExpression {
+        IfExpression {
+            token,
+            condition,
+            consequence,
+            alternative,
+        }
     }
 }
 
@@ -77,6 +107,12 @@ impl ReturnStatement {
 impl ExpressionStatement {
     pub fn new(value: Expression) -> ExpressionStatement {
         ExpressionStatement { value }
+    }
+}
+
+impl BlockStatment {
+    pub fn new(token: token::Token, statements: Vec<Statement>) -> BlockStatment {
+        BlockStatment { token, statements }
     }
 }
 

@@ -111,6 +111,19 @@ impl Parser {
         Option::Some(ast::Statement::ExpressionStatement(expression_statement))
     }
 
+    fn parse_block_statement(&mut self) -> ast::BlockStatment {
+        let token = self.next_token().unwrap(); //handled in calling function (currently parse_if)
+        let mut statements: Vec<ast::Statement> = Vec::new();
+        while (!self.expect_current(token::TokenType::RBrace))
+            && (!self.expect_current(token::TokenType::EOF))
+        {
+            let statement = self.parse_statement();
+            statements.push(statement);
+        }
+        self.next_token(); //dropping rbrace
+        ast::BlockStatment::new(token, statements)
+    }
+
     fn expect_current(&self, t_type: token::TokenType) -> bool {
         let t = match &self.current_token {
             Some(t) => t,
