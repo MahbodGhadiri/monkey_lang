@@ -15,6 +15,7 @@ pub enum Expression {
     PrefixExpression(Box<PrefixExpression>),
     InfixExpression(Box<InfixExpression>),
     IfExpression(Box<IfExpression>),
+    FunctionExpression(Box<FunctionLiteral>),
     Placeholder,
 }
 
@@ -46,8 +47,8 @@ pub struct LetStatement {
 pub struct IfExpression {
     token: token::Token,
     condition: Expression,
-    consequence: BlockStatment,
-    alternative: Option<BlockStatment>,
+    consequence: BlockStatement,
+    alternative: Option<BlockStatement>,
 }
 
 #[derive(Debug)]
@@ -62,9 +63,16 @@ pub struct ExpressionStatement {
 }
 
 #[derive(Debug)]
-pub struct BlockStatment {
+pub struct BlockStatement {
     token: token::Token,
     statements: Vec<Statement>,
+}
+
+#[derive(Debug)]
+pub struct FunctionLiteral {
+    token: token::Token,
+    parameters: Vec<Expression>,
+    body: BlockStatement,
 }
 
 impl Program {
@@ -86,8 +94,8 @@ impl IfExpression {
     pub fn new(
         token: token::Token,
         condition: Expression,
-        consequence: BlockStatment,
-        alternative: Option<BlockStatment>,
+        consequence: BlockStatement,
+        alternative: Option<BlockStatement>,
     ) -> IfExpression {
         IfExpression {
             token,
@@ -110,9 +118,9 @@ impl ExpressionStatement {
     }
 }
 
-impl BlockStatment {
-    pub fn new(token: token::Token, statements: Vec<Statement>) -> BlockStatment {
-        BlockStatment { token, statements }
+impl BlockStatement {
+    pub fn new(token: token::Token, statements: Vec<Statement>) -> BlockStatement {
+        BlockStatement { token, statements }
     }
 }
 
@@ -125,5 +133,19 @@ impl PrefixExpression {
 impl InfixExpression {
     pub fn new(left: Expression, token: token::Token, right: Expression) -> InfixExpression {
         InfixExpression { left, token, right }
+    }
+}
+
+impl FunctionLiteral {
+    pub fn new(
+        token: token::Token,
+        parameters: Vec<Expression>,
+        body: BlockStatement,
+    ) -> FunctionLiteral {
+        FunctionLiteral {
+            token,
+            parameters,
+            body,
+        }
     }
 }

@@ -111,7 +111,7 @@ impl Parser {
         Option::Some(ast::Statement::ExpressionStatement(expression_statement))
     }
 
-    fn parse_block_statement(&mut self) -> ast::BlockStatment {
+    fn parse_block_statement(&mut self) -> ast::BlockStatement {
         let token = self.next_token().unwrap(); //handled in calling function (currently parse_if)
         let mut statements: Vec<ast::Statement> = Vec::new();
         while (!self.expect_current(token::TokenType::RBrace))
@@ -121,7 +121,7 @@ impl Parser {
             statements.push(statement);
         }
         self.next_token(); //dropping rbrace
-        ast::BlockStatment::new(token, statements)
+        ast::BlockStatement::new(token, statements)
     }
 
     fn expect_current(&self, t_type: token::TokenType) -> bool {

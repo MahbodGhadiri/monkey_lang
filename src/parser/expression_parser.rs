@@ -80,7 +80,7 @@ impl PrefixExpressionParser {
 
         let consequence = expre_parser.parser.parse_block_statement();
 
-        let mut alternative: Option<ast::BlockStatment> = None;
+        let mut alternative: Option<ast::BlockStatement> = None;
 
         if expre_parser.parser.expect_current(token::TokenType::Else) {
             if !expre_parser.parser.expect_peek(token::TokenType::LBrace) {
@@ -88,10 +88,50 @@ impl PrefixExpressionParser {
             };
             expre_parser.parser.next_token(); //drop else
             alternative = Some(expre_parser.parser.parse_block_statement());
-        } // if(y>z) {y} else {z};
+        }
 
         let if_expression = ast::IfExpression::new(if_token, condition, consequence, alternative);
         ast::Expression::IfExpression(Box::new(if_expression))
+    }
+
+    pub fn parse_fn(expre_parser: &mut ExpressionParser, token: token::Token) -> ast::Expression {
+        let func_name = expre_parser.parser.next_token().unwrap(); //handle None
+        if !expre_parser.parser.expect_current(token::TokenType::LParen) {
+            panic!("expected ( but got {:?}", expre_parser.parser.current_token);
+        };
+        expre_parser.parser.next_token(); //drop (
+        let mut parameters: Vec<ast::Expression> = Vec::new();
+
+        if !(expre_parser.parser.expect_current(token::TokenType::RParen)) {
+            //TODO check if it is identifier
+            //TODO handle none
+            let ident = ast::Expression::Identifier(expre_parser.parser.next_token().unwrap());
+            parameters.push(ident);
+            while expre_parser.parser.expect_current(token::TokenType::Comma) {
+                //drop comma
+                expre_parser.parser.next_token();
+                //TODO check if it is identifier
+                //TODO handle none
+                let ident = ast::Expression::Identifier(expre_parser.parser.next_token().unwrap());
+                parameters.push(ident);
+            }
+        }
+
+        if !expre_parser.parser.expect_current(token::TokenType::RParen) {
+            panic!("expected ) but got {:?}", expre_parser.parser.current_token)
+        }
+
+        expre_parser.parser.next_token(); //drop )
+
+        if !expre_parser.parser.expect_current(token::TokenType::LBrace) {
+            panic!(
+                "expected {{ but got {:?}",
+                expre_parser.parser.current_token
+            );
+        };
+        let body = expre_parser.parser.parse_block_statement();
+        let function_literal = ast::FunctionLiteral::new(func_name, parameters, body);
+        ast::Expression::FunctionExpression(Box::new(function_literal))
     }
 
     pub fn parse_prefix_expression(
@@ -138,6 +178,7 @@ impl ExpressionParser<'_> {
             token::TokenType::Bang => PrefixExpressionParser::parse_prefix_expression(self, token),
             token::TokenType::LParen => PrefixExpressionParser::parse_grouped(self),
             token::TokenType::If => PrefixExpressionParser::parse_if(self, token),
+            token::TokenType::Function => PrefixExpressionParser::parse_fn(self, token),
             _ => panic!("does not supported token: {:?} yet", &token.get_type()),
         };
 
